@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String      @id @default(cuid())
+  clerkId      String      @unique
+  role         Role        @default(CLIENT)
+  firstName    String
+  lastName     String
+  email        String      @unique
+  phone        String?
+  qrCode       String      @unique
+  status       UserStatus  @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+
+  membership   Membership?
+  entryLogs    EntryLog[]
+}
+
+model Plan {
+  id           String       @id @default(cuid())
+  name         String       @unique
+  durationDays Int
+  price        Decimal      @db.Decimal(10, 2)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+
+  subscriptions Membership[]
+}
+
+model Membership {
+  id            String           @id @default(cuid())
+  userId        String           @unique
+  planId        String
+  startDate     DateTime
+  endDate       DateTime
+  status        MembershipStatus @default(ACTIVE)
+  membershipFee Decimal          @db.Decimal(10, 2) @default(500)
+  createdAt     DateTime         @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  plan     Plan      @relation(fields: [planId], references: [id])
+  payments Payment[]
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  membershipId String
+  amount       Decimal  @db.Decimal(10, 2)
+  paidAt       DateTime @default(now())
+  method       String   @default("CASH")
+  note         String?
+
+  membership Membership @relation(fields: [membershipId], references: [id])
+}
+
+model EntryLog {
+  id        String   @id @default(cuid())
+  userId    String
+  entryTime DateTime @default(now())
+  method    String   @default("QR")
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  OWNER
+  COACH
+  CLIENT
+  DEV
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+}
