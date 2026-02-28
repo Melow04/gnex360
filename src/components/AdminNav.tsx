@@ -132,7 +132,7 @@ export function AdminNav() {
                 </Button>
 
                 {isAccountMenuOpen && (
-                  <div className="absolute right-0 top-9 z-20 w-44 rounded-md border border-border/70 bg-background p-1 shadow-md">
+                  <div className="absolute bottom-9 right-0 z-20 mb-1 w-44 rounded-md border border-border/70 bg-background p-1 shadow-md">
                     <Button asChild variant="ghost" className="w-full justify-start">
                       <Link href="/account/settings">
                         <Settings className="h-4 w-4" />
