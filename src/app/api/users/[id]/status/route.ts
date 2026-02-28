@@ -9,7 +9,13 @@ export async function PATCH(
 ) {
   try {
     // Only OWNER can change user status
-    await requireOwner()
+    const check = await requireOwner()
+    if (!check.ok) {
+      return NextResponse.json(
+        { error: 'Unauthorized', role: check.role || 'none' },
+        { status: 403 }
+      )
+    }
 
     const { id } = await params
     const body = await request.json()

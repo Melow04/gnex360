@@ -70,6 +70,7 @@ You should see `gnex-db` in the list.
    ```env
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
    CLERK_SECRET_KEY=sk_test_YOUR_KEY_HERE
+   QR_TOKEN_SECRET=your-long-random-secret
    ```
 
 4. The `DATABASE_URL` should already be correct:
@@ -140,15 +141,7 @@ Back in the Clerk dashboard:
 
 After creating a Clerk account, you need to register the user in your database.
 
-**Option 1: Automatic Sync with Webhooks** ⭐ **RECOMMENDED**
-
-Set up Clerk webhooks to automatically create users in your database when they sign up:
-
-📄 **[Follow the Webhook Setup Guide](WEBHOOK-SETUP.md)**
-
-This is the easiest method - users are automatically registered with QR codes generated!
-
-**Option 2: Use the API directly**
+**Option 1: Use the API directly**
 
 Make a POST request to `/api/users/register`:
 
@@ -167,7 +160,7 @@ curl -X POST http://localhost:3000/api/users/register \
 
 Replace `user_XXXXX` with your actual Clerk user ID (found in Clerk dashboard).
 
-**Option 3: Create an onboarding page**
+**Option 2: Create an onboarding page**
 
 The onboarding page should:
 1. Fetch the current Clerk user
@@ -206,8 +199,11 @@ Test these with Postman or curl:
 
 3. **QR Code Entry**
    ```bash
+   POST /api/entry/qr-token
+   # member session only
+
    POST /api/entry/scan
-   Body: { "qrCode": "GNEX-..." }
+   Body: { "qrToken": "<signed-short-lived-token>" }
    ```
 
 4. **Dashboard Stats**

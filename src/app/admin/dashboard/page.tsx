@@ -4,8 +4,24 @@ import { prisma } from '@/lib/prisma'
 import { startOfDay } from 'date-fns'
 
 export default async function DashboardPage() {
-  // Protect the page
-  await requireOwnerOrCoach()
+  // Protect the page - check role from Clerk metadata
+  const check = await requireOwnerOrCoach()
+  
+  if (!check.ok) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600">Unauthorized</h1>
+          <p className="text-muted-foreground mt-2">
+            You need owner or coach role to access this page.
+          </p>
+          <p className="text-sm text-muted-foreground mt-4">
+            Current role: {check.role || 'none'}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const today = startOfDay(new Date())
 

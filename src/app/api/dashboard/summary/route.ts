@@ -6,7 +6,14 @@ import { startOfDay } from 'date-fns'
 export async function GET(request: NextRequest) {
   try {
     // Only OWNER or COACH can view dashboard
-    await requireOwnerOrCoach()
+    const check = await requireOwnerOrCoach()
+    
+    if (!check.ok) {
+      return NextResponse.json(
+        { error: 'Unauthorized', role: check.role || 'none' },
+        { status: 403 }
+      )
+    }
 
     const today = startOfDay(new Date())
 

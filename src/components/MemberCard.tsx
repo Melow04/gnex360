@@ -66,9 +66,6 @@ export function MemberCard({ user }: MemberCardProps) {
             </Badge>
           </div>
         )}
-        <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-          <p>QR Code: {user.qrCode}</p>
-        </div>
       </CardContent>
     </Card>
   )

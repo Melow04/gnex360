@@ -12,7 +12,7 @@ http://localhost:3000/api
 Most endpoints require authentication via Clerk. Include the session token in requests.
 
 Public endpoints:
-- `POST /api/entry/scan` - QR code scanning
+- None
 
 ---
 
@@ -140,17 +140,47 @@ POST /api/memberships
 
 ### Entry Management
 
+#### Generate Member Entry QR Token
+```http
+POST /api/entry/qr-token
+```
+
+**Auth Required:** CLIENT (member)
+
+**Request Body:** none
+
+**Success Response:** `200 OK`
+```json
+{
+  "success": true,
+  "qrToken": "<signed-token>",
+  "expiresAt": "2026-02-26T10:30:30.000Z",
+  "ttlSeconds": 30,
+  "member": {
+    "name": "John Doe",
+    "plan": "Monthly"
+  }
+}
+```
+
+**Notes:**
+- Token is short-lived (30s)
+- Token is one-time use; replay attempts are rejected
+- Only your backend can validate token signatures
+
+---
+
 #### QR Code Entry Scan
 ```http
 POST /api/entry/scan
 ```
 
-**Public Endpoint** (no auth required)
+**Auth Required:** OWNER or COACH (scanner operator)
 
 **Request Body:**
 ```json
 {
-  "qrCode": "GNEX-uuid..."
+  "qrToken": "<signed-token>"
 }
 ```
 
@@ -175,7 +205,7 @@ POST /api/entry/scan
 ```json
 {
   "success": false,
-  "error": "Invalid QR code",
+  "error": "Invalid or expired QR token",
   "reason": "USER_NOT_FOUND"
 }
 ```
@@ -309,7 +339,8 @@ User doesn't have required role for this operation.
 | PATCH /api/users/:id/status | ✅ | ❌ | ❌ |
 | POST /api/memberships | ✅ | ✅ | ❌ |
 | GET /api/dashboard/summary | ✅ | ✅ | ❌ |
-| POST /api/entry/scan | 🌐 Public | 🌐 Public | 🌐 Public |
+| POST /api/entry/qr-token | ❌ | ❌ | ✅ |
+| POST /api/entry/scan | ✅ | ✅ | ❌ |
 
 ---
 
@@ -331,9 +362,10 @@ curl -X POST http://localhost:3000/api/users/register \
 ### Scan QR code
 ```bash
 curl -X POST http://localhost:3000/api/entry/scan \
+  -H "Authorization: Bearer OWNER_OR_COACH_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "qrCode": "GNEX-uuid-here"
+    "qrToken": "SIGNED_TOKEN_HERE"
   }'
 ```
 
@@ -354,11 +386,11 @@ Currently no rate limiting is implemented. Consider adding rate limiting for pro
 
 ---
 
-## Webhooks (Future Enhancement)
+## RBAC Metadata (Current Approach)
 
-Clerk webhooks can be used to automatically:
-- Create user records when someone signs up
-- Update user data when Clerk profile changes
-- Delete user data when account is deleted
+Role-based access control is driven by Clerk public metadata.
 
-Configure in Clerk Dashboard → Webhooks
+- Set role in Clerk Dashboard → Users → Public metadata
+- Example payload: `{ "role": "owner" }`
+- Allowed roles: `owner`, `dev`, `coach`, `client`, `visitor`
+- Server routes must validate roles via `requireRole` helpers in `src/lib/rbac.ts`

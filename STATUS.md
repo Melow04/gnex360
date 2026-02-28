@@ -205,7 +205,7 @@ gnex360/
 ## Stage 2 Preparation
 
 ### Potential Enhancements
-- [ ] Clerk webhook integration for automatic user sync
+- [ ] Admin UI for role assignment via Clerk metadata
 - [ ] Enhanced member profile pages
 - [ ] Member QR code download/print feature
 - [ ] Payment receipt generation

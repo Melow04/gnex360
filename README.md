@@ -2,6 +2,12 @@
 
 Stage 1 of GNEX 360: The core operational layer featuring Identity & Access, Membership & Subscription, and Admin Dashboard.
 
+## 📚 Documentation
+
+- **[Setup Guide](SETUP.md)** - Complete installation and configuration
+- **[RBAC Guide](RBAC-GUIDE.md)** - Role-based access control implementation
+- **[API Documentation](API.md)** - API endpoints and usage
+
 ## Features
 
 ### ✅ Phase 0 — Project Scaffolding
@@ -18,8 +24,11 @@ Stage 1 of GNEX 360: The core operational layer featuring Identity & Access, Mem
 
 ### ✅ Phase 2 — Auth & RBAC
 - Clerk authentication integration
-- Role-based access control
+- Role-based access control (owner, dev, coach, client, visitor)
 - Protected routes and API endpoints
+- Manual role assignment via Clerk metadata
+- Server-side and client-side role checks
+- 📖 **[Complete RBAC Guide](RBAC-GUIDE.md)**
 
 ### ✅ Phase 3 — Identity & QR Core
 - User registration with QR code generation
@@ -68,6 +77,7 @@ Stage 1 of GNEX 360: The core operational layer featuring Identity & Access, Mem
    - `DATABASE_URL` - PostgreSQL connection string
    - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Get from Clerk dashboard
    - `CLERK_SECRET_KEY` - Get from Clerk dashboard
+   - `QR_TOKEN_SECRET` - Random long secret for signing short-lived QR tokens
 
 3. **Start PostgreSQL with Docker**
    ```bash
@@ -135,10 +145,9 @@ prisma/
 
 ## API Endpoints
 
-### Public Routes
-- `POST /api/entry/scan` - Validate QR code and log entry
-
 ### Protected Routes (Authentication Required)
+- `POST /api/entry/qr-token` - Generate a short-lived signed member QR token
+- `POST /api/entry/scan` - Validate signed QR token and log entry (OWNER/COACH scanner)
 - `POST /api/users/register` - Register new user with QR code
 - `POST /api/memberships` - Create membership (OWNER/COACH only)
 - `GET /api/dashboard/summary` - Get dashboard statistics (OWNER/COACH only)

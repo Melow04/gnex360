@@ -2,11 +2,89 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireOwnerOrCoach } from '@/lib/rbac'
 import { addDays } from 'date-fns'
+import { getMembershipStatus } from '@/lib/membership'
+
+export async function GET(request: NextRequest) {
+  try {
+    const check = await requireOwnerOrCoach()
+
+    if (!check.ok) {
+      return NextResponse.json(
+        { error: 'Unauthorized', role: check.role || 'none' },
+        { status: 403 }
+      )
+    }
+
+    const userId = request.nextUrl.searchParams.get('userId')
+
+    const memberships = await prisma.membership.findMany({
+      where: userId ? { userId } : undefined,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            status: true,
+          },
+        },
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            durationDays: true,
+            price: true,
+            isActive: true,
+          },
+        },
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      memberships: memberships.map((membership) => {
+        const validation = getMembershipStatus(membership)
+
+        return {
+          id: membership.id,
+          userId: membership.userId,
+          planId: membership.planId,
+          startDate: membership.startDate,
+          endDate: membership.endDate,
+          status: membership.status,
+          membershipFee: Number(membership.membershipFee),
+          createdAt: membership.createdAt,
+          validation,
+          user: membership.user,
+          plan: {
+            ...membership.plan,
+            price: Number(membership.plan.price),
+          },
+        }
+      }),
+    })
+  } catch (error) {
+    console.error('Membership list error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch memberships' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     // Only OWNER or COACH can create memberships
-    await requireOwnerOrCoach()
+    const check = await requireOwnerOrCoach()
+    
+    if (!check.ok) {
+      return NextResponse.json(
+        { error: 'Unauthorized', role: check.role || 'none' },
+        { status: 403 }
+      )
+    }
 
     const body = await request.json()
     const { userId, planId } = body

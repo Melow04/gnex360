@@ -2,22 +2,44 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { UserStatus } from '@prisma/client'
 import { isMembershipActive } from '@/lib/membership'
+import { requireOwnerOrCoach } from '@/lib/rbac'
+import { verifyEntryQrToken } from '@/lib/qr-token'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { qrCode } = body
-
-    if (!qrCode) {
+    const access = await requireOwnerOrCoach()
+    if (!access.ok) {
       return NextResponse.json(
-        { error: 'QR code is required' },
+        { error: 'Unauthorized scanner access' },
+        { status: 403 }
+      )
+    }
+
+    const body = await request.json()
+    const qrToken = body.qrToken || body.qrCode
+
+    if (!qrToken) {
+      return NextResponse.json(
+        { error: 'QR token is required' },
         { status: 400 }
       )
     }
 
-    // Find user by QR code
+    const tokenVerification = verifyEntryQrToken(qrToken)
+    if (!tokenVerification.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid or expired QR token',
+          reason: tokenVerification.reason,
+        },
+        { status: 403 }
+      )
+    }
+
+    // Find user by secure token payload
     const user = await prisma.user.findUnique({
-      where: { qrCode },
+      where: { id: tokenVerification.payload.userId },
       include: {
         membership: {
           include: {
@@ -31,7 +53,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Invalid QR code',
+          error: 'Invalid QR token',
           reason: 'USER_NOT_FOUND'
         },
         { status: 404 }

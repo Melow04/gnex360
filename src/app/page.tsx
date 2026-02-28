@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -9,12 +10,22 @@ export default function HomePage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <h1 className="text-2xl font-bold">GNEX 360</h1>
           <nav className="flex gap-4">
-            <Link href="/sign-in">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button>Sign Up</Button>
-            </Link>
+            <SignedOut>
+              <Link href="/sign-in">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button>Sign Up</Button>
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/account/settings">
+                <Button variant="ghost">Account Settings</Button>
+              </Link>
+              <SignOutButton>
+                <Button variant="outline">Log Out</Button>
+              </SignOutButton>
+            </SignedIn>
           </nav>
         </div>
       </header>

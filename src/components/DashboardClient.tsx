@@ -39,8 +39,11 @@ interface DashboardClientProps {
 
 export function DashboardClient({ stats, recentPayments }: DashboardClientProps) {
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-8">
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Feature Module / Dashboard
+        </p>
         <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
           Overview of gym operations and metrics
@@ -48,14 +51,14 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card className="border-border/70 bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Active Members
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-1">
             <div className="text-2xl font-bold">{stats.totalActiveMembers}</div>
             <p className="text-xs text-muted-foreground">
               Total active clients
@@ -63,13 +66,13 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70 bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Today's Entries
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-1">
             <div className="text-2xl font-bold">{stats.todayEntries}</div>
             <p className="text-xs text-muted-foreground">
               Check-ins today
@@ -77,13 +80,13 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70 bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Active Subscriptions
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-1">
             <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
               Current memberships
@@ -91,13 +94,13 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70 bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-1">
             <div className="text-2xl font-bold">₱{stats.totalRevenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               All time earnings
@@ -107,13 +110,18 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
       </div>
 
       {/* Recent Payments Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Payments</CardTitle>
+      <Card className="border-border/70 bg-card/80">
+        <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <div>
+            <CardTitle>Recent Payments</CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">Latest recorded transactions</p>
+          </div>
+          <Badge variant="outline">{recentPayments.length} records</Badge>
         </CardHeader>
         <CardContent>
           {recentPayments.length > 0 ? (
-            <Table>
+            <div className="overflow-x-auto rounded-md border border-border/60">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
@@ -147,7 +155,8 @@ export function DashboardClient({ stats, recentPayments }: DashboardClientProps)
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">
               No payments recorded yet
