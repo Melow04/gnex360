@@ -73,7 +73,7 @@ export function AdminNav() {
         </div>
       </header>
 
-      <aside className="hidden md:flex md:w-72 md:flex-col md:border-r md:bg-card/20">
+      <aside className="hidden md:fixed md:left-0 md:top-0 md:z-30 md:flex md:h-screen md:w-72 md:flex-col md:border-r md:bg-card/20">
         <div className="flex h-16 items-center border-b px-6">
           <h2 className="text-base font-semibold leading-none">GNEX 360 Admin</h2>
         </div>
